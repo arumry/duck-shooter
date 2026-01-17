@@ -3,13 +3,14 @@
 ## Project Status: Phase 1 & 2 Complete
 
 ## Current Focus
-Phase 3-4 in progress. Main Menu complete. Working on Pause Menu.
+Phase 3-4 in progress. Main Menu and Pause Menu complete. Working on Game Over screen.
 
 ### Completed This Session
 - [x] Main Menu screen - title, play button, difficulty selector, high scores
+- [x] Pause Menu - overlay UI with resume/restart/quit options
 
 ### In Progress
-- [x] Pause Menu - overlay UI with resume/restart/quit options
+- [x] Game Over screen - proper modal with final score, high score comparison, play again
 
 ---
 
@@ -49,7 +50,7 @@ Phase 3-4 in progress. Main Menu complete. Working on Pause Menu.
 - [x] Main Menu screen
 - [x] HUD (score, timer, ammo, combo)
 - [x] Pause Menu
-- [ ] Game Over screen (proper modal, currently alert)
+- [x] Game Over screen (proper modal with score display, high score, play again)
 - [x] High score persistence (localStorage)
 - [x] Difficulty modes (Easy/Medium/Hard) - implemented in config
 
@@ -73,6 +74,8 @@ Phase 3-4 in progress. Main Menu complete. Working on Pause Menu.
 - `src/components/game/ShootingSystem.ts` - Raycasting hit detection
 - `src/components/ui/HUD.ts` - Score, timer, ammo display
 - `src/components/ui/PauseMenu.ts` - Pause overlay with resume/restart/quit
+- `src/components/ui/MainMenu.ts` - Main menu with difficulty selection
+- `src/components/ui/GameOverScreen.ts` - Game over modal with score display
 - `index.html` - Game container with HUD markup
 - Config files: `package.json`, `tsconfig.json`, `vite.config.ts`
 

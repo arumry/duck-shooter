@@ -5,6 +5,7 @@ import { ShootingSystem } from './components/game/ShootingSystem';
 import { HUD } from './components/ui/HUD';
 import { MainMenu } from './components/ui/MainMenu';
 import { PauseMenu } from './components/ui/PauseMenu';
+import { GameOverScreen } from './components/ui/GameOverScreen';
 import { GameState, GAME_CONFIG, Difficulty } from './utils/constants';
 
 export class Game {
@@ -18,6 +19,7 @@ export class Game {
   private hud: HUD;
   private mainMenu: MainMenu;
   private pauseMenu: PauseMenu;
+  private gameOverScreen: GameOverScreen;
 
   private state: GameState = GameState.MENU;
   private difficulty: Difficulty = 'medium';
@@ -54,6 +56,7 @@ export class Game {
     this.hud = new HUD();
     this.mainMenu = new MainMenu();
     this.pauseMenu = new PauseMenu();
+    this.gameOverScreen = new GameOverScreen();
 
     // Clock
     this.clock = new THREE.Clock();
@@ -248,21 +251,18 @@ export class Game {
     this.inputHandler.showCursor();
 
     const finalScore = this.hud.getScore();
+    const previousHighScore = parseInt(localStorage.getItem('duckShooter_highScore') || '0');
+    const isNewHighScore = finalScore > previousHighScore;
 
-    // Save high score
-    const highScore = localStorage.getItem('duckShooter_highScore') || '0';
-    if (finalScore > parseInt(highScore)) {
+    // Save high score if new
+    if (isNewHighScore) {
       localStorage.setItem('duckShooter_highScore', finalScore.toString());
     }
 
-    // Show game over message and return to menu
-    setTimeout(() => {
-      alert(`Game Over!\nScore: ${finalScore}\nHigh Score: ${Math.max(
-        finalScore,
-        parseInt(highScore)
-      )}`);
-      this.showMenu();
-    }, 100);
+    const displayHighScore = Math.max(finalScore, previousHighScore);
+
+    // Show game over screen
+    this.gameOverScreen.show(finalScore, displayHighScore, isNewHighScore);
   }
 
   private animate = (): void => {
