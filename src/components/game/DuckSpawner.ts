@@ -3,7 +3,9 @@ import { Duck, DuckConfig, FlightPattern } from './Duck';
 import { DuckType, GAME_CONFIG, Difficulty } from '../../utils/constants';
 
 export class DuckSpawner {
-  private ducks: Duck[] = [];
+  private activeDucks: Duck[] = [];
+  private duckPool: Duck[] = [];
+  private poolSize: number = 15; // Pre-allocate pool (maxDucks + buffer)
   private scene: THREE.Scene;
   private spawnTimer: number = 0;
   private spawnInterval: number;
@@ -13,6 +15,28 @@ export class DuckSpawner {
     this.scene = scene;
     this.spawnInterval = GAME_CONFIG.spawning.spawnInterval;
     this.baseSpeed = GAME_CONFIG.difficulties[difficulty].duckSpeed;
+
+    // Initialize duck pool
+    this.initializePool();
+  }
+
+  private initializePool(): void {
+    for (let i = 0; i < this.poolSize; i++) {
+      const duck = new Duck();
+      duck.mesh.visible = false;
+      this.scene.add(duck.mesh);
+      this.duckPool.push(duck);
+    }
+  }
+
+  private getDuckFromPool(): Duck | null {
+    // Find an inactive duck in the pool
+    for (const duck of this.duckPool) {
+      if (!duck.isActive) {
+        return duck;
+      }
+    }
+    return null;
   }
 
   public setDifficulty(difficulty: Difficulty): void {
@@ -25,7 +49,7 @@ export class DuckSpawner {
 
     if (
       this.spawnTimer >= this.spawnInterval &&
-      this.ducks.length < GAME_CONFIG.spawning.maxDucks
+      this.activeDucks.length < GAME_CONFIG.spawning.maxDucks
     ) {
       this.spawnDuck();
       this.spawnTimer = 0;
@@ -36,20 +60,22 @@ export class DuckSpawner {
       );
     }
 
-    // Update all ducks
-    for (const duck of this.ducks) {
+    // Update all active ducks
+    for (const duck of this.activeDucks) {
       duck.update(deltaTime);
     }
 
-    // Remove dead or out-of-bounds ducks
+    // Return dead or out-of-bounds ducks to pool
     this.cleanupDucks();
   }
 
   private spawnDuck(): void {
+    const duck = this.getDuckFromPool();
+    if (!duck) return; // Pool exhausted
+
     const config = this.generateDuckConfig();
-    const duck = new Duck(config);
-    this.ducks.push(duck);
-    this.scene.add(duck.mesh);
+    duck.reset(config);
+    this.activeDucks.push(duck);
   }
 
   private generateDuckConfig(): DuckConfig {
@@ -117,31 +143,41 @@ export class DuckSpawner {
   }
 
   private cleanupDucks(): void {
-    for (let i = this.ducks.length - 1; i >= 0; i--) {
-      const duck = this.ducks[i];
+    for (let i = this.activeDucks.length - 1; i >= 0; i--) {
+      const duck = this.activeDucks[i];
       if (!duck.isAlive || duck.isOutOfBounds()) {
-        this.scene.remove(duck.mesh);
-        duck.dispose();
-        this.ducks.splice(i, 1);
+        // Return to pool instead of disposing
+        duck.deactivate();
+        this.activeDucks.splice(i, 1);
       }
     }
   }
 
   public getDucks(): Duck[] {
-    return this.ducks;
+    return this.activeDucks;
   }
 
   public getAliveDucks(): Duck[] {
-    return this.ducks.filter((d) => d.isAlive && !d.isHit);
+    return this.activeDucks.filter((d) => d.isAlive && !d.isHit);
   }
 
   public reset(): void {
-    for (const duck of this.ducks) {
+    // Deactivate all active ducks and return to pool
+    for (const duck of this.activeDucks) {
+      duck.deactivate();
+    }
+    this.activeDucks = [];
+    this.spawnTimer = 0;
+    this.spawnInterval = GAME_CONFIG.spawning.spawnInterval;
+  }
+
+  public dispose(): void {
+    // Fully dispose all pooled ducks (call on game shutdown)
+    for (const duck of this.duckPool) {
       this.scene.remove(duck.mesh);
       duck.dispose();
     }
-    this.ducks = [];
-    this.spawnTimer = 0;
-    this.spawnInterval = GAME_CONFIG.spawning.spawnInterval;
+    this.duckPool = [];
+    this.activeDucks = [];
   }
 }

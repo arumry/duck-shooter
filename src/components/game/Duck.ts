@@ -19,6 +19,7 @@ export class Duck {
   public direction: THREE.Vector3;
   public isAlive: boolean = true;
   public isHit: boolean = false;
+  public isActive: boolean = false; // For pooling - tracks if duck is in use
 
   private time: number = 0;
   private waveAmplitude: number = 2;
@@ -36,12 +37,8 @@ export class Duck {
   private originalMaterials: Map<THREE.Mesh, THREE.Material> = new Map();
   private flashMaterial: THREE.MeshStandardMaterial;
 
-  constructor(config: DuckConfig) {
-    this.type = config.type;
-    this.speed = config.speed;
-    this.flightPattern = config.flightPattern;
-    this.direction = config.direction.normalize();
 
+  constructor(config?: DuckConfig) {
     // Create flash material for hit reaction
     this.flashMaterial = new THREE.MeshStandardMaterial({
       color: 0xffffff,
@@ -51,7 +48,6 @@ export class Duck {
 
     // Create duck mesh using combined geometries for a low-poly duck shape
     this.mesh = this.createDuckMesh();
-    this.mesh.position.copy(config.startPosition);
     this.mesh.castShadow = true;
 
     // Get wing group reference for animation
@@ -64,11 +60,90 @@ export class Duck {
       }
     });
 
-    this.rotationSpeed = new THREE.Vector3(
+    this.rotationSpeed = new THREE.Vector3();
+    this.direction = new THREE.Vector3();
+    this.type = DuckType.REGULAR;
+    this.speed = 0;
+    this.flightPattern = 'straight';
+
+    // Initialize with config if provided
+    if (config) {
+      this.reset(config);
+    }
+  }
+
+  // Reset duck for reuse from pool
+  public reset(config: DuckConfig): void {
+    this.type = config.type;
+    this.speed = config.speed;
+    this.flightPattern = config.flightPattern;
+    this.direction.copy(config.direction).normalize();
+
+    // Reset state
+    this.isAlive = true;
+    this.isHit = false;
+    this.isActive = true;
+    this.time = 0;
+    this.fallSpeed = 0;
+    this.wingAngle = 0;
+    this.hitReactionTime = 0;
+    this.isInHitReaction = false;
+
+    // Reset position and transforms
+    this.mesh.position.copy(config.startPosition);
+    this.mesh.rotation.set(0, 0, 0);
+    this.mesh.scale.setScalar(1);
+    this.mesh.visible = true;
+
+    // Update color based on type
+    this.updateDuckColor();
+
+    // Restore original materials (in case hit reaction was active)
+    this.mesh.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const originalMaterial = this.originalMaterials.get(child);
+        if (originalMaterial) {
+          child.material = originalMaterial;
+        }
+      }
+    });
+
+    // Randomize rotation speed for death animation
+    this.rotationSpeed.set(
       Math.random() * 5,
       Math.random() * 5,
       Math.random() * 5
     );
+
+    // Face direction of movement
+    this.mesh.lookAt(this.mesh.position.clone().add(this.direction));
+  }
+
+  private updateDuckColor(): void {
+    const color = this.getColorForType();
+
+    // Update body material color
+    const visualGroup = this.mesh.children[0];
+    if (visualGroup) {
+      visualGroup.traverse((child) => {
+        if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+          // Only update body-colored parts (not beak or eyes)
+          const mat = child.material;
+          if (mat.color.getHex() !== 0xffa500 && mat.color.getHex() !== 0x000000) {
+            mat.color.setHex(color);
+            // Update the originalMaterials map with new color reference
+            this.originalMaterials.set(child, mat);
+          }
+        }
+      });
+    }
+  }
+
+  // Deactivate duck and return to pool
+  public deactivate(): void {
+    this.isActive = false;
+    this.isAlive = false;
+    this.mesh.visible = false;
   }
 
   private createDuckMesh(): THREE.Mesh {
