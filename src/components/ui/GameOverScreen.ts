@@ -1,3 +1,5 @@
+import { audioManager } from '../audio/AudioManager';
+
 export class GameOverScreen {
   private screenElement: HTMLElement;
   private finalScoreElement: HTMLElement;
@@ -19,11 +21,13 @@ export class GameOverScreen {
 
   private setupEventListeners(): void {
     this.playAgainButton.addEventListener('click', () => {
+      audioManager.playClick();
       this.hide();
       window.dispatchEvent(new CustomEvent('game:restart'));
     });
 
     this.menuButton.addEventListener('click', () => {
+      audioManager.playClick();
       this.hide();
       window.dispatchEvent(new CustomEvent('game:quit'));
     });

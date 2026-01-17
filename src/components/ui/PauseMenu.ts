@@ -1,3 +1,5 @@
+import { audioManager } from '../audio/AudioManager';
+
 export class PauseMenu {
   private menuElement: HTMLElement;
   private resumeButton: HTMLElement;
@@ -15,15 +17,18 @@ export class PauseMenu {
 
   private setupEventListeners(): void {
     this.resumeButton.addEventListener('click', () => {
+      audioManager.playClick();
       window.dispatchEvent(new CustomEvent('game:pause'));
     });
 
     this.restartButton.addEventListener('click', () => {
+      audioManager.playClick();
       this.hide();
       window.dispatchEvent(new CustomEvent('game:restart'));
     });
 
     this.quitButton.addEventListener('click', () => {
+      audioManager.playClick();
       window.dispatchEvent(new CustomEvent('game:quit'));
     });
   }

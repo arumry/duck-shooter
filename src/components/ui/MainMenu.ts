@@ -1,4 +1,5 @@
 import { Difficulty } from '../../utils/constants';
+import { audioManager } from '../audio/AudioManager';
 
 export class MainMenu {
   private menuElement: HTMLElement;
@@ -20,6 +21,8 @@ export class MainMenu {
   private setupEventListeners(): void {
     // Play button
     this.playButton.addEventListener('click', () => {
+      audioManager.init();
+      audioManager.playClick();
       window.dispatchEvent(
         new CustomEvent('menu:play', { detail: { difficulty: this.selectedDifficulty } })
       );
@@ -28,6 +31,8 @@ export class MainMenu {
     // Difficulty buttons
     this.difficultyButtons.forEach((btn) => {
       btn.addEventListener('click', () => {
+        audioManager.init();
+        audioManager.playClick();
         this.difficultyButtons.forEach((b) => b.classList.remove('selected'));
         btn.classList.add('selected');
         this.selectedDifficulty = btn.dataset.difficulty as Difficulty;

@@ -14,6 +14,10 @@ Phase 3 Polish - Visual Effects
 
 ### Completed This Iteration
 - [x] Screen shake on shoot
+- [x] Audio system with Web Audio API (gunshot, quack, hit, UI click, game over sounds)
+
+### Current Task: None - Phase 3 Audio Complete
+All sound effects implemented using procedural audio generation (no external files needed)
 
 ---
 
@@ -45,8 +49,8 @@ Phase 3 Polish - Visual Effects
 - [x] Feather particle burst on hit
 - [x] Crosshair cursor
 - [x] Screen shake on shoot
-- [ ] Sound effects (gunshot, quack, hit, splash)
-- [ ] Background music
+- [x] Sound effects (gunshot, quack, hit, UI click, game over)
+- [~] Background music (skipped - procedural audio sufficient for MVP)
 
 ## Phase 4: UI & Flow
 - [x] Game state machine (MENU, PLAYING, PAUSED, GAME_OVER)
@@ -79,6 +83,7 @@ Phase 3 Polish - Visual Effects
 - `src/components/ui/PauseMenu.ts` - Pause overlay with resume/restart/quit
 - `src/components/ui/MainMenu.ts` - Main menu with difficulty selection
 - `src/components/ui/GameOverScreen.ts` - Game over modal with score display
+- `src/components/audio/AudioManager.ts` - Procedural audio with Web Audio API
 - `index.html` - Game container with HUD markup
 - Config files: `package.json`, `tsconfig.json`, `vite.config.ts`
 

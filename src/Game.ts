@@ -9,6 +9,7 @@ import { GameOverScreen } from './components/ui/GameOverScreen';
 import { MuzzleFlash } from './components/effects/MuzzleFlash';
 import { FeatherParticles } from './components/effects/FeatherParticles';
 import { ScreenShake } from './components/effects/ScreenShake';
+import { audioManager } from './components/audio/AudioManager';
 import { GameState, GAME_CONFIG, Difficulty } from './utils/constants';
 
 export class Game {
@@ -177,6 +178,7 @@ export class Game {
       this.hud.shoot();
       this.muzzleFlash.trigger();
       this.screenShake.trigger(0.12, 0.08); // Subtle shake
+      audioManager.playGunshot();
 
       const hitDuck = this.shootingSystem.shoot(
         mousePosition,
@@ -188,6 +190,8 @@ export class Game {
         this.featherParticles.burst(hitDuck.mesh.position.clone());
         hitDuck.hit();
         this.hud.updateScore(hitDuck.getPoints());
+        audioManager.playHit();
+        audioManager.playQuack();
       } else {
         this.hud.resetCombo();
       }
@@ -228,6 +232,10 @@ export class Game {
     this.hud.show();
     this.inputHandler.hideCursor();
     this.clock.start();
+
+    // Initialize and resume audio on first user interaction
+    audioManager.init();
+    audioManager.resume();
   }
 
   private pause(): void {
@@ -262,6 +270,7 @@ export class Game {
   private gameOver(): void {
     this.state = GameState.GAME_OVER;
     this.inputHandler.showCursor();
+    audioManager.playGameOver();
 
     const finalScore = this.hud.getScore();
     const previousHighScore = parseInt(localStorage.getItem('duckShooter_highScore') || '0');
