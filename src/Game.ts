@@ -3,6 +3,7 @@ import { DuckSpawner } from './components/game/DuckSpawner';
 import { InputHandler } from './components/game/InputHandler';
 import { ShootingSystem } from './components/game/ShootingSystem';
 import { HUD } from './components/ui/HUD';
+import { MainMenu } from './components/ui/MainMenu';
 import { GameState, GAME_CONFIG, Difficulty } from './utils/constants';
 
 export class Game {
@@ -14,8 +15,9 @@ export class Game {
   private inputHandler: InputHandler;
   private shootingSystem: ShootingSystem;
   private hud: HUD;
+  private mainMenu: MainMenu;
 
-  private state: GameState = GameState.PLAYING;
+  private state: GameState = GameState.MENU;
   private difficulty: Difficulty = 'medium';
   private clock: THREE.Clock;
   private gameDuration: number;
@@ -48,6 +50,7 @@ export class Game {
     this.inputHandler = new InputHandler();
     this.shootingSystem = new ShootingSystem(this.camera, this.difficulty);
     this.hud = new HUD();
+    this.mainMenu = new MainMenu();
 
     // Clock
     this.clock = new THREE.Clock();
@@ -59,8 +62,11 @@ export class Game {
     // Handle resize
     window.addEventListener('resize', () => this.onResize());
 
-    // Start the game
-    this.start();
+    // Show menu on load
+    this.showMenu();
+
+    // Start render loop
+    this.animate();
   }
 
   private setupScene(): void {
@@ -142,6 +148,12 @@ export class Game {
   }
 
   private setupEventHandlers(): void {
+    // Menu play button
+    window.addEventListener('menu:play', ((event: CustomEvent<{ difficulty: Difficulty }>) => {
+      this.setDifficulty(event.detail.difficulty);
+      this.startGame();
+    }) as EventListener);
+
     // Shooting
     this.inputHandler.onShoot((mousePosition) => {
       if (this.state !== GameState.PLAYING) return;
@@ -177,13 +189,21 @@ export class Game {
     });
   }
 
-  private start(): void {
+  private showMenu(): void {
+    this.state = GameState.MENU;
+    this.hud.hide();
+    this.mainMenu.show();
+    this.inputHandler.showCursor();
+  }
+
+  private startGame(): void {
     this.state = GameState.PLAYING;
+    this.mainMenu.hide();
+    this.duckSpawner.reset();
     this.hud.reset(this.gameDuration);
     this.hud.show();
     this.inputHandler.hideCursor();
     this.clock.start();
-    this.animate();
   }
 
   private pause(): void {
@@ -211,7 +231,6 @@ export class Game {
     this.inputHandler.showCursor();
 
     const finalScore = this.hud.getScore();
-    console.log(`Game Over! Final Score: ${finalScore}`);
 
     // Save high score
     const highScore = localStorage.getItem('duckShooter_highScore') || '0';
@@ -219,12 +238,13 @@ export class Game {
       localStorage.setItem('duckShooter_highScore', finalScore.toString());
     }
 
-    // Show game over message (simple alert for now, will be replaced with proper UI)
+    // Show game over message and return to menu
     setTimeout(() => {
       alert(`Game Over!\nScore: ${finalScore}\nHigh Score: ${Math.max(
         finalScore,
         parseInt(highScore)
-      )}\n\nPress R to restart`);
+      )}`);
+      this.showMenu();
     }, 100);
   }
 

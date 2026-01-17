@@ -3,7 +3,10 @@
 ## Project Status: Phase 1 & 2 Complete
 
 ## Current Focus
-Phase 1-2 foundation and core mechanics implemented. Ready for Phase 3-4.
+Implementing Main Menu screen (Phase 4).
+
+### In Progress
+- [ ] Main Menu screen - title, play button, difficulty selector, high scores
 
 ---
 

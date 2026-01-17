@@ -105,10 +105,125 @@
         top: 50%;
         transform: translateY(-50%);
       }
+
+      /* Main Menu */
+      #main-menu {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(180deg, #87ceeb 0%, #4a90c2 50%, #228b22 100%);
+        z-index: 100;
+      }
+
+      #main-menu.hidden {
+        display: none;
+      }
+
+      .menu-title {
+        font-size: 72px;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 4px 4px 0 #333, 6px 6px 10px rgba(0,0,0,0.3);
+        margin-bottom: 20px;
+        letter-spacing: 4px;
+      }
+
+      .menu-subtitle {
+        font-size: 18px;
+        color: #fff;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        margin-bottom: 40px;
+      }
+
+      .menu-button {
+        padding: 16px 48px;
+        font-size: 24px;
+        font-weight: bold;
+        color: #fff;
+        background: linear-gradient(180deg, #ff6b35 0%, #d63d00 100%);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #8b2500, 0 6px 10px rgba(0,0,0,0.3);
+        transition: transform 0.1s, box-shadow 0.1s;
+        margin-bottom: 20px;
+      }
+
+      .menu-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0 #8b2500, 0 8px 12px rgba(0,0,0,0.3);
+      }
+
+      .menu-button:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #8b2500, 0 4px 8px rgba(0,0,0,0.3);
+      }
+
+      .difficulty-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+      }
+
+      .difficulty-btn {
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        background: rgba(0,0,0,0.3);
+        border: 2px solid rgba(255,255,255,0.5);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .difficulty-btn:hover {
+        background: rgba(0,0,0,0.5);
+      }
+
+      .difficulty-btn.selected {
+        background: rgba(255,215,0,0.8);
+        color: #333;
+        border-color: #ffd700;
+      }
+
+      .high-score-display {
+        font-size: 20px;
+        color: #ffd700;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        margin-top: 20px;
+      }
+
+      .menu-duck {
+        font-size: 48px;
+        margin-bottom: 10px;
+      }
     </style>
   </head>
   <body>
     <div id="app">
+      <!-- Main Menu -->
+      <div id="main-menu">
+        <div class="menu-duck">🦆</div>
+        <h1 class="menu-title">DUCK SHOOTER</h1>
+        <p class="menu-subtitle">Aim, Shoot, Score!</p>
+
+        <div class="difficulty-selector">
+          <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+          <button class="difficulty-btn selected" data-difficulty="medium">Medium</button>
+          <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        </div>
+
+        <button class="menu-button" id="play-btn">PLAY</button>
+
+        <div class="high-score-display" id="menu-high-score">High Score: 0</div>
+      </div>
       <div id="hud">
         <div id="score">Score: 0</div>
         <div id="timer">60</div>
