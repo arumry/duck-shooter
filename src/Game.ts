@@ -10,6 +10,7 @@ import { MuzzleFlash } from './components/effects/MuzzleFlash';
 import { FeatherParticles } from './components/effects/FeatherParticles';
 import { ScreenShake } from './components/effects/ScreenShake';
 import { audioManager } from './components/audio/AudioManager';
+import { PerformanceStats } from './components/debug/PerformanceStats';
 import { GameState, GAME_CONFIG, Difficulty } from './utils/constants';
 
 export class Game {
@@ -27,6 +28,7 @@ export class Game {
   private muzzleFlash: MuzzleFlash;
   private featherParticles: FeatherParticles;
   private screenShake: ScreenShake;
+  private performanceStats: PerformanceStats;
 
   private state: GameState = GameState.MENU;
   private difficulty: Difficulty = 'medium';
@@ -67,6 +69,7 @@ export class Game {
     this.muzzleFlash = new MuzzleFlash(this.scene, this.camera);
     this.featherParticles = new FeatherParticles(this.scene);
     this.screenShake = new ScreenShake(this.camera);
+    this.performanceStats = new PerformanceStats();
 
     // Clock
     this.clock = new THREE.Clock();
@@ -315,6 +318,10 @@ export class Game {
       // Update screen shake
       this.screenShake.update(deltaTime);
     }
+
+    // Update performance stats (tracks FPS regardless of game state)
+    const activeDucks = this.duckSpawner.getDucks().filter(d => d.isActive).length;
+    this.performanceStats.update(activeDucks);
 
     // Render
     this.renderer.render(this.scene, this.camera);
