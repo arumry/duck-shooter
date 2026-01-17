@@ -3,16 +3,17 @@
 ## Project Status: Phase 1 & 2 Complete
 
 ## Current Focus
-Phase 3 Polish - Hit reaction animation
+Phase 3 Polish - Visual Effects
 
 ### Completed This Session
 - [x] Main Menu screen - title, play button, difficulty selector, high scores
 - [x] Pause Menu - overlay UI with resume/restart/quit options
 - [x] Game Over screen - proper modal with final score, high score comparison, play again
 - [x] Create low-poly duck 3D model using Three.js geometry
+- [x] Hit reaction animation - flash/scale effect on hit before fall
 
 ### In Progress
-- [x] Hit reaction animation - flash/scale effect on hit before fall
+- [ ] Muzzle flash effect on shoot
 
 ---
 

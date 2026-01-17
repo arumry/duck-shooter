@@ -6,6 +6,7 @@ import { HUD } from './components/ui/HUD';
 import { MainMenu } from './components/ui/MainMenu';
 import { PauseMenu } from './components/ui/PauseMenu';
 import { GameOverScreen } from './components/ui/GameOverScreen';
+import { MuzzleFlash } from './components/effects/MuzzleFlash';
 import { GameState, GAME_CONFIG, Difficulty } from './utils/constants';
 
 export class Game {
@@ -20,6 +21,7 @@ export class Game {
   private mainMenu: MainMenu;
   private pauseMenu: PauseMenu;
   private gameOverScreen: GameOverScreen;
+  private muzzleFlash: MuzzleFlash;
 
   private state: GameState = GameState.MENU;
   private difficulty: Difficulty = 'medium';
@@ -57,6 +59,7 @@ export class Game {
     this.mainMenu = new MainMenu();
     this.pauseMenu = new PauseMenu();
     this.gameOverScreen = new GameOverScreen();
+    this.muzzleFlash = new MuzzleFlash(this.scene, this.camera);
 
     // Clock
     this.clock = new THREE.Clock();
@@ -166,6 +169,7 @@ export class Game {
       if (!this.hud.canShoot()) return;
 
       this.hud.shoot();
+      this.muzzleFlash.trigger();
 
       const hitDuck = this.shootingSystem.shoot(
         mousePosition,
@@ -283,6 +287,9 @@ export class Game {
 
       // Update duck spawner
       this.duckSpawner.update(deltaTime);
+
+      // Update muzzle flash
+      this.muzzleFlash.update(deltaTime);
     }
 
     // Render
