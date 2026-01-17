@@ -197,6 +197,7 @@ export class Game {
         audioManager.playQuack();
       } else {
         this.hud.resetCombo();
+        audioManager.playMiss();
       }
     });
 
