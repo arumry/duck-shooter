@@ -11,7 +11,7 @@ Phase 3 Polish - Creating proper duck 3D model to replace placeholder boxes.
 - [x] Game Over screen - proper modal with final score, high score comparison, play again
 
 ### In Progress
-- [ ] Create low-poly duck 3D model using Three.js geometry
+- [x] Create low-poly duck 3D model using Three.js geometry
 
 ---
 
@@ -35,8 +35,8 @@ Phase 3 Polish - Creating proper duck 3D model to replace placeholder boxes.
 - [x] Ammo/reload system
 
 ## Phase 3: Polish
-- [ ] Create/integrate low-poly duck 3D model
-- [ ] Wing flapping animation
+- [x] Create/integrate low-poly duck 3D model
+- [x] Wing flapping animation
 - [ ] Hit reaction animation
 - [x] Falling/spinning death animation
 - [ ] Muzzle flash effect on shoot
