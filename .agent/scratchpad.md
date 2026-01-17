@@ -12,8 +12,8 @@ Phase 3 Polish - Visual Effects
 - [x] Create low-poly duck 3D model using Three.js geometry
 - [x] Hit reaction animation - flash/scale effect on hit before fall
 
-### In Progress
-- [ ] Muzzle flash effect on shoot
+### Completed This Iteration
+- [x] Screen shake on shoot
 
 ---
 
@@ -41,10 +41,10 @@ Phase 3 Polish - Visual Effects
 - [x] Wing flapping animation
 - [x] Hit reaction animation
 - [x] Falling/spinning death animation
-- [ ] Muzzle flash effect on shoot
-- [ ] Feather particle burst on hit
+- [x] Muzzle flash effect on shoot
+- [x] Feather particle burst on hit
 - [x] Crosshair cursor
-- [ ] Screen shake on shoot
+- [x] Screen shake on shoot
 - [ ] Sound effects (gunshot, quack, hit, splash)
 - [ ] Background music
 

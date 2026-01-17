@@ -8,6 +8,7 @@ import { PauseMenu } from './components/ui/PauseMenu';
 import { GameOverScreen } from './components/ui/GameOverScreen';
 import { MuzzleFlash } from './components/effects/MuzzleFlash';
 import { FeatherParticles } from './components/effects/FeatherParticles';
+import { ScreenShake } from './components/effects/ScreenShake';
 import { GameState, GAME_CONFIG, Difficulty } from './utils/constants';
 
 export class Game {
@@ -24,6 +25,7 @@ export class Game {
   private gameOverScreen: GameOverScreen;
   private muzzleFlash: MuzzleFlash;
   private featherParticles: FeatherParticles;
+  private screenShake: ScreenShake;
 
   private state: GameState = GameState.MENU;
   private difficulty: Difficulty = 'medium';
@@ -63,6 +65,7 @@ export class Game {
     this.gameOverScreen = new GameOverScreen();
     this.muzzleFlash = new MuzzleFlash(this.scene, this.camera);
     this.featherParticles = new FeatherParticles(this.scene);
+    this.screenShake = new ScreenShake(this.camera);
 
     // Clock
     this.clock = new THREE.Clock();
@@ -173,6 +176,7 @@ export class Game {
 
       this.hud.shoot();
       this.muzzleFlash.trigger();
+      this.screenShake.trigger(0.12, 0.08); // Subtle shake
 
       const hitDuck = this.shootingSystem.shoot(
         mousePosition,
@@ -298,6 +302,9 @@ export class Game {
 
       // Update feather particles
       this.featherParticles.update(deltaTime);
+
+      // Update screen shake
+      this.screenShake.update(deltaTime);
     }
 
     // Render
