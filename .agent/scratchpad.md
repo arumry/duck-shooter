@@ -3,15 +3,16 @@
 ## Project Status: Phase 1 & 2 Complete
 
 ## Current Focus
-Phase 3 Polish - Creating proper duck 3D model to replace placeholder boxes.
+Phase 3 Polish - Hit reaction animation
 
 ### Completed This Session
 - [x] Main Menu screen - title, play button, difficulty selector, high scores
 - [x] Pause Menu - overlay UI with resume/restart/quit options
 - [x] Game Over screen - proper modal with final score, high score comparison, play again
+- [x] Create low-poly duck 3D model using Three.js geometry
 
 ### In Progress
-- [x] Create low-poly duck 3D model using Three.js geometry
+- [x] Hit reaction animation - flash/scale effect on hit before fall
 
 ---
 
@@ -37,7 +38,7 @@ Phase 3 Polish - Creating proper duck 3D model to replace placeholder boxes.
 ## Phase 3: Polish
 - [x] Create/integrate low-poly duck 3D model
 - [x] Wing flapping animation
-- [ ] Hit reaction animation
+- [x] Hit reaction animation
 - [x] Falling/spinning death animation
 - [ ] Muzzle flash effect on shoot
 - [ ] Feather particle burst on hit

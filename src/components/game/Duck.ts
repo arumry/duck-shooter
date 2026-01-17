@@ -29,11 +29,25 @@ export class Duck {
   private wingGroup: THREE.Group;
   private wingAngle: number = 0;
 
+  // Hit reaction animation state
+  private hitReactionTime: number = 0;
+  private hitReactionDuration: number = 0.15; // Duration of flash/scale effect
+  private isInHitReaction: boolean = false;
+  private originalMaterials: Map<THREE.Mesh, THREE.Material> = new Map();
+  private flashMaterial: THREE.MeshStandardMaterial;
+
   constructor(config: DuckConfig) {
     this.type = config.type;
     this.speed = config.speed;
     this.flightPattern = config.flightPattern;
     this.direction = config.direction.normalize();
+
+    // Create flash material for hit reaction
+    this.flashMaterial = new THREE.MeshStandardMaterial({
+      color: 0xffffff,
+      emissive: 0xffffff,
+      emissiveIntensity: 0.8,
+    });
 
     // Create duck mesh using combined geometries for a low-poly duck shape
     this.mesh = this.createDuckMesh();
@@ -42,6 +56,13 @@ export class Duck {
 
     // Get wing group reference for animation
     this.wingGroup = this.mesh.getObjectByName('wings') as THREE.Group;
+
+    // Store original materials for hit reaction restore
+    this.mesh.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material instanceof THREE.MeshStandardMaterial) {
+        this.originalMaterials.set(child, child.material);
+      }
+    });
 
     this.rotationSpeed = new THREE.Vector3(
       Math.random() * 5,
@@ -152,7 +173,19 @@ export class Duck {
 
   public hit(): void {
     this.isHit = true;
+    this.isInHitReaction = true;
+    this.hitReactionTime = 0;
     this.fallSpeed = 0;
+
+    // Apply flash effect - swap all materials to white
+    this.mesh.traverse((child) => {
+      if (child instanceof THREE.Mesh && this.originalMaterials.has(child)) {
+        child.material = this.flashMaterial;
+      }
+    });
+
+    // Scale up for "pop" effect
+    this.mesh.scale.setScalar(1.3);
   }
 
   public update(deltaTime: number): void {
@@ -161,6 +194,31 @@ export class Duck {
     this.time += deltaTime;
 
     if (this.isHit) {
+      // Hit reaction phase - flash and scale before falling
+      if (this.isInHitReaction) {
+        this.hitReactionTime += deltaTime;
+
+        // Animate scale back to normal during reaction
+        const reactionProgress = this.hitReactionTime / this.hitReactionDuration;
+        const scale = 1.3 - 0.3 * reactionProgress; // Scale from 1.3 to 1.0
+        this.mesh.scale.setScalar(Math.max(1.0, scale));
+
+        // End hit reaction and restore materials
+        if (this.hitReactionTime >= this.hitReactionDuration) {
+          this.isInHitReaction = false;
+          // Restore original materials
+          this.mesh.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+              const originalMaterial = this.originalMaterials.get(child);
+              if (originalMaterial) {
+                child.material = originalMaterial;
+              }
+            }
+          });
+        }
+        return; // Don't fall during reaction
+      }
+
       // Falling animation
       this.fallSpeed += 15 * deltaTime; // Gravity
       this.mesh.position.y -= this.fallSpeed * deltaTime;
@@ -229,6 +287,10 @@ export class Duck {
     // Dispose main mesh geometry and material
     this.mesh.geometry.dispose();
     (this.mesh.material as THREE.Material).dispose();
+
+    // Dispose flash material
+    this.flashMaterial.dispose();
+    this.originalMaterials.clear();
 
     // Dispose all child geometries and materials
     this.mesh.traverse((child) => {
