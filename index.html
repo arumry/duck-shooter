@@ -204,6 +204,96 @@
         font-size: 48px;
         margin-bottom: 10px;
       }
+
+      /* Pause Menu */
+      #pause-menu {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.7);
+        z-index: 100;
+      }
+
+      #pause-menu.hidden {
+        display: none;
+      }
+
+      .pause-title {
+        font-size: 56px;
+        font-weight: bold;
+        color: #fff;
+        text-shadow: 3px 3px 0 #333, 4px 4px 8px rgba(0,0,0,0.5);
+        margin-bottom: 40px;
+        letter-spacing: 4px;
+      }
+
+      .pause-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .pause-btn {
+        padding: 14px 40px;
+        font-size: 20px;
+        font-weight: bold;
+        color: #fff;
+        background: linear-gradient(180deg, #4a90c2 0%, #2c5c8a 100%);
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 0 #1a3a5c, 0 6px 10px rgba(0,0,0,0.3);
+        transition: transform 0.1s, box-shadow 0.1s;
+        min-width: 200px;
+      }
+
+      .pause-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 0 #1a3a5c, 0 8px 12px rgba(0,0,0,0.3);
+      }
+
+      .pause-btn:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0 #1a3a5c, 0 4px 8px rgba(0,0,0,0.3);
+      }
+
+      .pause-btn.resume {
+        background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
+        box-shadow: 0 4px 0 #1b5e20, 0 6px 10px rgba(0,0,0,0.3);
+      }
+
+      .pause-btn.resume:hover {
+        box-shadow: 0 6px 0 #1b5e20, 0 8px 12px rgba(0,0,0,0.3);
+      }
+
+      .pause-btn.resume:active {
+        box-shadow: 0 2px 0 #1b5e20, 0 4px 8px rgba(0,0,0,0.3);
+      }
+
+      .pause-btn.quit {
+        background: linear-gradient(180deg, #f44336 0%, #c62828 100%);
+        box-shadow: 0 4px 0 #8b1a1a, 0 6px 10px rgba(0,0,0,0.3);
+      }
+
+      .pause-btn.quit:hover {
+        box-shadow: 0 6px 0 #8b1a1a, 0 8px 12px rgba(0,0,0,0.3);
+      }
+
+      .pause-btn.quit:active {
+        box-shadow: 0 2px 0 #8b1a1a, 0 4px 8px rgba(0,0,0,0.3);
+      }
+
+      .pause-hint {
+        margin-top: 30px;
+        font-size: 14px;
+        color: rgba(255,255,255,0.6);
+      }
     </style>
   </head>
   <body>
@@ -224,6 +314,18 @@
 
         <div class="high-score-display" id="menu-high-score">High Score: 0</div>
       </div>
+
+      <!-- Pause Menu -->
+      <div id="pause-menu" class="hidden">
+        <h2 class="pause-title">PAUSED</h2>
+        <div class="pause-buttons">
+          <button class="pause-btn resume" id="resume-btn">Resume</button>
+          <button class="pause-btn" id="restart-btn">Restart</button>
+          <button class="pause-btn quit" id="quit-btn">Quit to Menu</button>
+        </div>
+        <p class="pause-hint">Press ESC to resume</p>
+      </div>
+
       <div id="hud">
         <div id="score">Score: 0</div>
         <div id="timer">60</div>

@@ -4,6 +4,7 @@ import { InputHandler } from './components/game/InputHandler';
 import { ShootingSystem } from './components/game/ShootingSystem';
 import { HUD } from './components/ui/HUD';
 import { MainMenu } from './components/ui/MainMenu';
+import { PauseMenu } from './components/ui/PauseMenu';
 import { GameState, GAME_CONFIG, Difficulty } from './utils/constants';
 
 export class Game {
@@ -16,6 +17,7 @@ export class Game {
   private shootingSystem: ShootingSystem;
   private hud: HUD;
   private mainMenu: MainMenu;
+  private pauseMenu: PauseMenu;
 
   private state: GameState = GameState.MENU;
   private difficulty: Difficulty = 'medium';
@@ -51,6 +53,7 @@ export class Game {
     this.shootingSystem = new ShootingSystem(this.camera, this.difficulty);
     this.hud = new HUD();
     this.mainMenu = new MainMenu();
+    this.pauseMenu = new PauseMenu();
 
     // Clock
     this.clock = new THREE.Clock();
@@ -187,6 +190,11 @@ export class Game {
     window.addEventListener('game:restart', () => {
       this.restart();
     });
+
+    // Quit to menu
+    window.addEventListener('game:quit', () => {
+      this.quitToMenu();
+    });
   }
 
   private showMenu(): void {
@@ -210,20 +218,29 @@ export class Game {
     this.state = GameState.PAUSED;
     this.clock.stop();
     this.inputHandler.showCursor();
+    this.pauseMenu.show();
   }
 
   private resume(): void {
     this.state = GameState.PLAYING;
+    this.pauseMenu.hide();
     this.clock.start();
     this.inputHandler.hideCursor();
   }
 
   private restart(): void {
+    this.pauseMenu.hide();
     this.duckSpawner.reset();
     this.hud.reset(this.gameDuration);
     this.clock.start();
     this.state = GameState.PLAYING;
     this.inputHandler.hideCursor();
+  }
+
+  private quitToMenu(): void {
+    this.pauseMenu.hide();
+    this.duckSpawner.reset();
+    this.showMenu();
   }
 
   private gameOver(): void {
