@@ -1,0 +1,267 @@
+import * as THREE from 'three';
+import { DuckSpawner } from './components/game/DuckSpawner';
+import { InputHandler } from './components/game/InputHandler';
+import { ShootingSystem } from './components/game/ShootingSystem';
+import { HUD } from './components/ui/HUD';
+import { GameState, GAME_CONFIG, Difficulty } from './utils/constants';
+
+export class Game {
+  private scene: THREE.Scene;
+  private camera: THREE.PerspectiveCamera;
+  private renderer: THREE.WebGLRenderer;
+
+  private duckSpawner: DuckSpawner;
+  private inputHandler: InputHandler;
+  private shootingSystem: ShootingSystem;
+  private hud: HUD;
+
+  private state: GameState = GameState.PLAYING;
+  private difficulty: Difficulty = 'medium';
+  private clock: THREE.Clock;
+  private gameDuration: number;
+
+  constructor() {
+    // Initialize Three.js scene
+    this.scene = new THREE.Scene();
+    this.setupScene();
+
+    // Camera
+    const { fov, near, far, position } = GAME_CONFIG.camera;
+    this.camera = new THREE.PerspectiveCamera(
+      fov,
+      window.innerWidth / window.innerHeight,
+      near,
+      far
+    );
+    this.camera.position.set(position.x, position.y, position.z);
+    this.camera.lookAt(0, position.y, 0);
+
+    // Renderer
+    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.shadowMap.enabled = true;
+    document.getElementById('app')?.appendChild(this.renderer.domElement);
+
+    // Game systems
+    this.duckSpawner = new DuckSpawner(this.scene, this.difficulty);
+    this.inputHandler = new InputHandler();
+    this.shootingSystem = new ShootingSystem(this.camera, this.difficulty);
+    this.hud = new HUD();
+
+    // Clock
+    this.clock = new THREE.Clock();
+    this.gameDuration = GAME_CONFIG.difficulties[this.difficulty].duration;
+
+    // Setup event handlers
+    this.setupEventHandlers();
+
+    // Handle resize
+    window.addEventListener('resize', () => this.onResize());
+
+    // Start the game
+    this.start();
+  }
+
+  private setupScene(): void {
+    // Sky gradient background
+    const skyColor = new THREE.Color(0x87ceeb);
+    const groundColor = new THREE.Color(0x228b22);
+    this.scene.background = skyColor;
+
+    // Ambient light
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    this.scene.add(ambientLight);
+
+    // Directional light (sun)
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(10, 20, 10);
+    directionalLight.castShadow = true;
+    directionalLight.shadow.mapSize.width = 1024;
+    directionalLight.shadow.mapSize.height = 1024;
+    this.scene.add(directionalLight);
+
+    // Ground plane
+    const groundGeometry = new THREE.PlaneGeometry(100, 50);
+    const groundMaterial = new THREE.MeshStandardMaterial({
+      color: groundColor,
+      side: THREE.DoubleSide,
+    });
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -2;
+    ground.position.z = -10;
+    ground.receiveShadow = true;
+    this.scene.add(ground);
+
+    // Simple forest silhouette (back plane)
+    const forestGeometry = new THREE.PlaneGeometry(100, 20);
+    const forestMaterial = new THREE.MeshBasicMaterial({
+      color: 0x1a4d1a,
+      side: THREE.DoubleSide,
+    });
+    const forest = new THREE.Mesh(forestGeometry, forestMaterial);
+    forest.position.set(0, 8, -30);
+    this.scene.add(forest);
+
+    // Add some simple clouds
+    this.createClouds();
+  }
+
+  private createClouds(): void {
+    const cloudMaterial = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.8,
+    });
+
+    for (let i = 0; i < 5; i++) {
+      const cloudGroup = new THREE.Group();
+
+      // Create cloud from multiple spheres
+      for (let j = 0; j < 4; j++) {
+        const radius = 1 + Math.random() * 2;
+        const geometry = new THREE.SphereGeometry(radius, 8, 8);
+        const sphere = new THREE.Mesh(geometry, cloudMaterial);
+        sphere.position.set(
+          (Math.random() - 0.5) * 4,
+          (Math.random() - 0.5) * 1,
+          (Math.random() - 0.5) * 2
+        );
+        cloudGroup.add(sphere);
+      }
+
+      cloudGroup.position.set(
+        (Math.random() - 0.5) * 60,
+        15 + Math.random() * 5,
+        -20 + Math.random() * 10
+      );
+
+      this.scene.add(cloudGroup);
+    }
+  }
+
+  private setupEventHandlers(): void {
+    // Shooting
+    this.inputHandler.onShoot((mousePosition) => {
+      if (this.state !== GameState.PLAYING) return;
+      if (!this.hud.canShoot()) return;
+
+      this.hud.shoot();
+
+      const hitDuck = this.shootingSystem.shoot(
+        mousePosition,
+        this.duckSpawner.getDucks()
+      );
+
+      if (hitDuck) {
+        hitDuck.hit();
+        this.hud.updateScore(hitDuck.getPoints());
+      } else {
+        this.hud.resetCombo();
+      }
+    });
+
+    // Pause/Resume
+    window.addEventListener('game:pause', () => {
+      if (this.state === GameState.PLAYING) {
+        this.pause();
+      } else if (this.state === GameState.PAUSED) {
+        this.resume();
+      }
+    });
+
+    // Restart
+    window.addEventListener('game:restart', () => {
+      this.restart();
+    });
+  }
+
+  private start(): void {
+    this.state = GameState.PLAYING;
+    this.hud.reset(this.gameDuration);
+    this.hud.show();
+    this.inputHandler.hideCursor();
+    this.clock.start();
+    this.animate();
+  }
+
+  private pause(): void {
+    this.state = GameState.PAUSED;
+    this.clock.stop();
+    this.inputHandler.showCursor();
+  }
+
+  private resume(): void {
+    this.state = GameState.PLAYING;
+    this.clock.start();
+    this.inputHandler.hideCursor();
+  }
+
+  private restart(): void {
+    this.duckSpawner.reset();
+    this.hud.reset(this.gameDuration);
+    this.clock.start();
+    this.state = GameState.PLAYING;
+    this.inputHandler.hideCursor();
+  }
+
+  private gameOver(): void {
+    this.state = GameState.GAME_OVER;
+    this.inputHandler.showCursor();
+
+    const finalScore = this.hud.getScore();
+    console.log(`Game Over! Final Score: ${finalScore}`);
+
+    // Save high score
+    const highScore = localStorage.getItem('duckShooter_highScore') || '0';
+    if (finalScore > parseInt(highScore)) {
+      localStorage.setItem('duckShooter_highScore', finalScore.toString());
+    }
+
+    // Show game over message (simple alert for now, will be replaced with proper UI)
+    setTimeout(() => {
+      alert(`Game Over!\nScore: ${finalScore}\nHigh Score: ${Math.max(
+        finalScore,
+        parseInt(highScore)
+      )}\n\nPress R to restart`);
+    }, 100);
+  }
+
+  private animate = (): void => {
+    requestAnimationFrame(this.animate);
+
+    if (this.state === GameState.PLAYING) {
+      const deltaTime = this.clock.getDelta();
+
+      // Update timer
+      const elapsed = this.clock.getElapsedTime();
+      const remaining = this.gameDuration - elapsed;
+      this.hud.updateTimer(remaining);
+
+      if (remaining <= 0) {
+        this.gameOver();
+        return;
+      }
+
+      // Update duck spawner
+      this.duckSpawner.update(deltaTime);
+    }
+
+    // Render
+    this.renderer.render(this.scene, this.camera);
+  };
+
+  private onResize(): void {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  public setDifficulty(difficulty: Difficulty): void {
+    this.difficulty = difficulty;
+    this.gameDuration = GAME_CONFIG.difficulties[difficulty].duration;
+    this.duckSpawner.setDifficulty(difficulty);
+    this.shootingSystem.setDifficulty(difficulty);
+  }
+}

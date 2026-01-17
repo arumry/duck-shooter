@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Duck Shooter</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        overflow: hidden;
+        background: #000;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      #app {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+      }
+
+      canvas {
+        display: block;
+      }
+
+      #hud {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      }
+
+      #score {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      #timer {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 32px;
+        font-weight: bold;
+      }
+
+      #ammo {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        font-size: 20px;
+      }
+
+      #combo {
+        position: absolute;
+        top: 60px;
+        left: 20px;
+        font-size: 18px;
+        color: #ffd700;
+        opacity: 0;
+        transition: opacity 0.3s;
+      }
+
+      #combo.visible {
+        opacity: 1;
+      }
+
+      .crosshair {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+      }
+
+      .crosshair::before,
+      .crosshair::after {
+        content: '';
+        position: absolute;
+        background: white;
+        box-shadow: 0 0 4px rgba(0,0,0,0.5);
+      }
+
+      .crosshair::before {
+        width: 2px;
+        height: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+
+      .crosshair::after {
+        width: 100%;
+        height: 2px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="hud">
+        <div id="score">Score: 0</div>
+        <div id="timer">60</div>
+        <div id="ammo">Ammo: 6/6</div>
+        <div id="combo">Combo x1.5!</div>
+      </div>
+      <div class="crosshair" id="crosshair"></div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
