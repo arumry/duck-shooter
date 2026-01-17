@@ -3,14 +3,15 @@
 ## Project Status: Phase 1 & 2 Complete
 
 ## Current Focus
-Phase 3-4 in progress. Main Menu and Pause Menu complete. Working on Game Over screen.
+Phase 3 Polish - Creating proper duck 3D model to replace placeholder boxes.
 
 ### Completed This Session
 - [x] Main Menu screen - title, play button, difficulty selector, high scores
 - [x] Pause Menu - overlay UI with resume/restart/quit options
+- [x] Game Over screen - proper modal with final score, high score comparison, play again
 
 ### In Progress
-- [x] Game Over screen - proper modal with final score, high score comparison, play again
+- [ ] Create low-poly duck 3D model using Three.js geometry
 
 ---
 
