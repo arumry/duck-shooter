@@ -7,6 +7,7 @@ import { MainMenu } from './components/ui/MainMenu';
 import { PauseMenu } from './components/ui/PauseMenu';
 import { GameOverScreen } from './components/ui/GameOverScreen';
 import { MuzzleFlash } from './components/effects/MuzzleFlash';
+import { FeatherParticles } from './components/effects/FeatherParticles';
 import { GameState, GAME_CONFIG, Difficulty } from './utils/constants';
 
 export class Game {
@@ -22,6 +23,7 @@ export class Game {
   private pauseMenu: PauseMenu;
   private gameOverScreen: GameOverScreen;
   private muzzleFlash: MuzzleFlash;
+  private featherParticles: FeatherParticles;
 
   private state: GameState = GameState.MENU;
   private difficulty: Difficulty = 'medium';
@@ -60,6 +62,7 @@ export class Game {
     this.pauseMenu = new PauseMenu();
     this.gameOverScreen = new GameOverScreen();
     this.muzzleFlash = new MuzzleFlash(this.scene, this.camera);
+    this.featherParticles = new FeatherParticles(this.scene);
 
     // Clock
     this.clock = new THREE.Clock();
@@ -177,6 +180,8 @@ export class Game {
       );
 
       if (hitDuck) {
+        // Trigger feather burst at duck position
+        this.featherParticles.burst(hitDuck.mesh.position.clone());
         hitDuck.hit();
         this.hud.updateScore(hitDuck.getPoints());
       } else {
@@ -290,6 +295,9 @@ export class Game {
 
       // Update muzzle flash
       this.muzzleFlash.update(deltaTime);
+
+      // Update feather particles
+      this.featherParticles.update(deltaTime);
     }
 
     // Render
