@@ -16,8 +16,16 @@ Phase 3 Polish - Visual Effects
 - [x] Screen shake on shoot
 - [x] Audio system with Web Audio API (gunshot, quack, hit, UI click, game over sounds)
 
-### Current Task: None - Phase 3 Audio Complete
-All sound effects implemented using procedural audio generation (no external files needed)
+### Current Task: Phase 5 Optimization
+Remaining tasks:
+- [x] Object pooling for ducks (FeatherParticles already had pooling)
+- [ ] Performance profiling
+- [ ] Final polish pass
+
+### Analysis Notes
+- FeatherParticles: Already implements pooling (poolSize=50)
+- MuzzleFlash: Single reused sprite (no pooling needed)
+- Ducks: Now pooled (poolSize=15) - pre-created, reset/reused via reset() method
 
 ---
 
